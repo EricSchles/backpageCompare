@@ -4,7 +4,8 @@ import pickle
 import grequests
 
 class Scraper:
-    def get_all_backpages():
+    def __init__
+    def get_all_backpages(self):
         r = requests.get("http://www.backpage.com/")
         html = lxml.html.fromstring(r.text)
         backpages = html.xpath("//a/@href")
@@ -18,7 +19,24 @@ class Scraper:
         with open("backpages","w") as f:
             pickle.dump(links,f)
 
-    def setup_all(index):
+    def get_nynj_backpages(self):
+        ny_nj_backpage = ["newyork","bronx","brooklyn","longisland","manhattan","queens","statenisland","newjersey","centraljersey","jerseyshore","northjersey","southjersey"]
+        r = requests.get("http://www.backpage.com/")
+        html = lxml.html.fromstring(r.text)
+        backpages = html.xpath("//a/@href")
+        links = []
+        for i in backpages:
+            if "backpage" in i:
+                for area in ny_nj_backpage:
+                    if area in i:
+                        if not "www" in i: 
+                            i = str(i)
+                            links.append(i)
+
+        with open("nynj_backpages","w") as f:
+            pickle.dump(links,f)
+
+    def setup_all(self,index):
         backpages = pickle.load(open("backpages","rb"))
         female_escorts = []
         body_rubs = []
@@ -69,7 +87,7 @@ class Scraper:
         return all_pages
 
     #gets all the ads on a given backpage, page
-    def grab_ads(page):
+    def grab_ads(self,page):
         r = requests.get(page)
         html = lxml.html.fromstring(r.text)
         ads = html.xpath('//div[@class="cat"]/a/@href')
@@ -79,7 +97,7 @@ class Scraper:
             final.append(ad)
         return final
 
-    def get_information_from_page(url_list,asynchronous=False):
+    def get_information_from_page(self,url_list,asynchronous=False):
 
         if asynchronous:
             for urls in url_list:
@@ -104,6 +122,8 @@ class Scraper:
             textbody = [i.text_content() for i in posting_body]
             pictures = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
             return textbody,pictures
+
+
 print "start.."
 pages = setup_all(3)
 print "got all the links to start scraping.."
