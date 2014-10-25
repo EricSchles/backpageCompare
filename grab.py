@@ -2,9 +2,19 @@ import requests
 import lxml.html
 import pickle
 import grequests
+import os
 
 class Scraper:
-    def __init__
+    def __init__(self,national=False,local=False):
+        self.national = national
+        self.local = local
+        if national:
+            if not os.path.exists("backpages"):
+                self.get_all_backpages()
+        if local:
+            if not os.path.exists("nynj_backpages"):
+                self.get_nynj_backpages()
+            
     def get_all_backpages(self):
         r = requests.get("http://www.backpage.com/")
         html = lxml.html.fromstring(r.text)
