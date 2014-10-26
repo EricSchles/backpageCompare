@@ -319,4 +319,4 @@ class Scraper:
         if self.local:
             final_data.to_csv("ny_nj_data.csv")
         os.chdir("../")
-        return folder
+        return folder,time_lapse
