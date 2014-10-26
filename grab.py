@@ -172,7 +172,7 @@ class Scraper:
                     result = {}
                     html = lxml.html.fromstring(r.text)
                     posting_body = html.xpath('//div[@class="postingBody"]')
-                    result["textbody"] = [i.text_content() for i in posting_body]
+                    result["textbody"] = " ".join([i.text_content() for i in posting_body])
                     result['pictures'] = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
                     result['url'] = r.url
                     result["phone_number"] = self.phone_number_grab(result["textbody"])
