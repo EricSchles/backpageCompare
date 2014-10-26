@@ -3,9 +3,10 @@ import lxml.html
 import pickle
 import grequests
 import os
+import pandas as pd
 
 class Scraper:
-    def __init__(self,national=False,local=False):
+    def __init__(self,national=False,local=False,num_pages=5,synced=True):
         self.national = national
         self.local = local
         if national:
@@ -14,7 +15,8 @@ class Scraper:
         if local:
             if not os.path.exists("nynj_backpages"):
                 self.get_nynj_backpages()
-            
+        self.num_pages = num_pages
+        self.synchronous = synced
     def get_all_backpages(self):
         r = requests.get("http://www.backpage.com/")
         html = lxml.html.fromstring(r.text)
@@ -96,16 +98,43 @@ class Scraper:
         all_pages = female_escorts + body_rubs + strippers + dominatrixes + transsexual_escorts + male_escorts + websites + adult_jobs
         return all_pages
 
+    def setup_nynj(self,index):
+        backpages = pickle.load(open("nynj_backpages","rb"))
+        adult_jobs = []
+        for page in backpages:
+            for i in xrange(1,index):
+                if i == 1:
+                    adult = page + "AdultJobs/"
+                    adult_jobs.append(adult)
+                else:
+                    adult = page + "AdultJobs/?page="+str(i)
+                    adult_jobs.append(adult)
+
+        return adult_jobs
+
     #gets all the ads on a given backpage, page
-    def grab_ads(self,page):
-        r = requests.get(page)
-        html = lxml.html.fromstring(r.text)
-        ads = html.xpath('//div[@class="cat"]/a/@href')
-        final = []
-        for ad in ads:
-            ad = str(ad)
-            final.append(ad)
-        return final
+    def grab_ads(self,page,asynchronous=False):
+        if not asynchronous:
+            r = requests.get(page)
+            html = lxml.html.fromstring(r.text)
+            ads = html.xpath('//div[@class="cat"]/a/@href')
+            final = []
+            for ad in ads:
+                ad = str(ad)
+                final.append(ad)
+            return final
+        else:
+            responses = page
+            results = []
+            for r in responses:
+                html = lxml.html.fromstring(r.text)
+                ads = html.xpath('//div[@class="cat"]/a/@href')
+                final = []
+                for ad in ads:
+                    ad = str(ad)
+                    final.append(ad)
+                results.append(final)
+            return results
 
     def get_information_from_page(self,url_list,asynchronous=False):
 
@@ -126,39 +155,76 @@ class Scraper:
             return results
 
         else:
+            result = {}
             r = requests.get(url_list)
             html = lxml.html.fromstring(r.text)
             posting_body = html.xpath('//div[@class="postingBody"]')
-            textbody = [i.text_content() for i in posting_body]
-            pictures = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
-            return textbody,pictures
+            result["textbody"] = [i.text_content() for i in posting_body]
+            result["pictures"] = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
+            result["url"] = r.url
+            result["phone_number"] = self.phone_number_grab(result["textbody"])
+            return result
 
+    def letter_to_number(self,text):
+        text= text.upper()
+        text = text.replace("ONE","1")
+        text = text.replace("TWO","2")
+        text = text.replace("THREE","3")
+        text = text.replace("FOUR","4")
+        text = text.replace("FIVE","5")
+        text = text.replace("SIX","6")
+        text = text.replace("SEVEN","7")
+        text = text.replace("EIGHT","8")
+        text = text.replace("NINE","9")
+        text = text.replace("ZERO","0")
+        return text
+        
+    def phone_number_grab(self,text):
+        text = self.letter_to_number(text)
+        phone = []
+        for letter in text:
+            if letter.isdigit():
+                phone.append(letter)
+            
 
-print "start.."
-pages = setup_all(3)
-print "got all the links to start scraping.."
-links = []
+    def run(self):
+        if self.national:
+            pages = setup_all(self.num_pages) #tune this
+        if self.local:
+            pages = setup_nynj(self.num_pages) #tune this
+        links = []
 
-#for testing
-# page = pages[0]
-# links.append(grab_ads(page))
+        if self.synchronous:
+            for page in pages:
+                links += grab_ads(page)
+        else:
+            for i in xrange(0,len(pages),10):
+                rs = (grequests.get(page,stream=False) for page in pages[i-10:i])
+                responses = grequests.map(rs)
+                links += grab_ads(responses,asynchronous=True)
+        
+        if not self.synchronous:
+            #chunking requests because grequests can't handle that many at once
+            url_list = []
+            for i in xrange(0,len(links),10):
+                url_list.append(links[i-10:i])
 
-# print get_information_from_page(links[0][0])
-
-#for real
-print "scraping all the links.."
-for page in pages[:10]:
-    links += grab_ads(page)
-
-print "grabbing page data..."
-
-#chunking requests because grequests can't handle that many at once
-url_list = []
-for i in xrange(0,len(links),10):
-    url_list.append(links[i-10:i])
-
-data = get_information_from_page(url_list,asynchronous=True)
-print data
-# data = []
-# for link in links:
-#     data.append(get_information_from_page(link))
+            data = get_information_from_page(url_list,asynchronous=True)
+        else:
+            data = []
+            for link in links:
+                data.append(get_information_from_page(link))
+        final_data = pd.DataFrame(columns=["url","textbody","pictures","filename","file_hash"])
+        for datum in data:
+            final_data = final_data.append(datum,ignore_index=True)
+        now = time.strftime("%m_%d_%y,%H_%M")
+        folder = "backpage"+now+".csv"
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        os.chdir(folder)
+        if self.national:
+            final_data.to_csv("national_data.csv")
+        if self.local:
+            final_data.to_csv("ny_ny_data.csv")
+        os.chdir("../")
+        return folder
