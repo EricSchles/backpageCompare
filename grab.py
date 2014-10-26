@@ -17,6 +17,7 @@ class Scraper:
                 self.get_nynj_backpages()
         self.num_pages = num_pages
         self.synchronous = synced
+
     def get_all_backpages(self):
         r = requests.get("http://www.backpage.com/")
         html = lxml.html.fromstring(r.text)
@@ -48,6 +49,12 @@ class Scraper:
         with open("nynj_backpages","w") as f:
             pickle.dump(links,f)
 
+    def save(self,r):
+        if 
+        name = r.url.split("/")[-2:]
+        with open(name,"w") as f:
+            f.write(r.text)
+            
     def setup_all(self,index):
         backpages = pickle.load(open("backpages","rb"))
         female_escorts = []
@@ -236,7 +243,7 @@ class Scraper:
             data = []
             for link in links:
                 data.append(get_information_from_page(link))
-        final_data = pd.DataFrame(columns=["url","textbody","pictures","filename","file_hash"])
+        final_data = pd.DataFrame(columns=["url","textbody","phone_number","pictures","emails","filename","file_hash"])
         for datum in data:
             final_data = final_data.append(datum,ignore_index=True)
         now = time.strftime("%m_%d_%y,%H_%M")
