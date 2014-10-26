@@ -155,17 +155,18 @@ class Scraper:
                 for ad in ads:
                     ad = str(ad)
                     final.append(ad)
-                results.append(final)
+                results += final
             return results
 
     def get_information_from_page(self,url_list,asynchronous=False):
 
         if asynchronous:
+            results = []
             for urls in url_list:
                 rs = (grequests.get(u,stream=False) for u in urls)
                 responses = grequests.map(rs)
-                results = []
                 for r in responses:
+                    
                     self.save(r)
                     result = {}
                     html = lxml.html.fromstring(r.text)
@@ -251,6 +252,7 @@ class Scraper:
             for page in pages:
                 links += self.grab_ads(page)
         else:
+            print len(pages)
             for i in xrange(0,len(pages),10):
                 rs = (grequests.get(page,stream=False) for page in pages[i-10:i])
                 responses = grequests.map(rs)
