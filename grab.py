@@ -163,6 +163,7 @@ class Scraper:
             result["pictures"] = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
             result["url"] = r.url
             result["phone_number"] = self.phone_number_grab(result["textbody"])
+            result["emails"] = self.email_grab(result["textbody"])
             return result
 
     def letter_to_number(self,text):
@@ -197,7 +198,12 @@ class Scraper:
             return ''.join(phone)
         
     def email_grab(self,text):
-        pass
+        text = text.split(" ")
+        emails = []
+        for word in text:
+            if "@" in word and "." in word:
+                emails.append(word)
+        return emails
 
     def run(self):
         if self.national:
