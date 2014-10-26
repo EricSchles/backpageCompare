@@ -65,9 +65,10 @@ class Scraper:
                 os.mkdir("ads")
             os.chdir("ads")
 
-        name = r.url.split("/")[-2:]
+        name = "".join(r.url.split("/")[-2:])
         with open(name+".html","w") as f:
-            f.write(r.text)
+            text = r.text.encode("ascii","ignore")
+            f.write(text)
         os.chdir("../")
 
     def setup_all(self,index):
