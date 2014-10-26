@@ -5,7 +5,7 @@ import grequests
 import os
 import pandas as pd
 import time
-from unidecode import unidecode
+
 
 """
 To Do:
@@ -76,6 +76,7 @@ class Scraper:
             text = r.text.encode("ascii","ignore")
             f.write(text)
         os.chdir("../")
+        return name+".html"
 
     def setup_all(self,index):
         backpages = pickle.load(open("backpages","rb"))
@@ -174,7 +175,17 @@ class Scraper:
                 responses = grequests.map(rs)
                 for r in responses:
                     
-                    self.save(r)
+                    name = self.save(r)
+                    if self.national:
+		            	if not os.path.exists("recruitment"):
+		                	os.mkdir("recruitment")
+		            	os.chdir("recruitment")
+		        	elif self.local:
+		           		if not os.path.exists("ads"):
+		                	os.mkdir("ads")
+		            	os.chdir("ads")
+                    hash_value = self.hasher(name)
+                    os.chdir("../")
                     result = {}
                     html = lxml.html.fromstring(r.text)
                     posting_body = html.xpath('//div[@class="postingBody"]')
@@ -183,6 +194,8 @@ class Scraper:
                     result['url'] = r.url
                     result["phone_number"] = self.phone_number_grab(result["textbody"])
                     result["emails"] = self.email_grab(result["textbody"])
+                    result["file_hash"] = hash_value
+                    result["filename"] = name
                     results.append(result)
                     r.close()
             return results
@@ -278,6 +291,7 @@ class Scraper:
             for link in links:
                 data.append(get_information_from_page(link))
         final_data = pd.DataFrame(columns=["url","textbody","phone_number","pictures","emails","filename","file_hash"])
+        
         for datum in data:
             final_data = final_data.append(datum,ignore_index=True)
         
