@@ -182,14 +182,22 @@ class Scraper:
     def phone_number_grab(self,text):
         text = self.letter_to_number(text)
         phone = []
+        counter = 0
+        found = False
         for ind,letter in enumerate(text):
             if letter.isdigit():
                 phone.append(letter)
-                start = ind
-                if  
+                found = True
+            else:
+                counter += 1
+            if counter > 5 and found:
+                phone = []
 
         if len(phone) == 9 or len(phone) == 10:
             return ''.join(phone)
+        
+    def email_grab(self,text):
+        pass
 
     def run(self):
         if self.national:
