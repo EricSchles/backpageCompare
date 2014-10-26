@@ -6,6 +6,12 @@ import os
 import pandas as pd
 import time
 from unidecode import unidecode
+
+"""
+To Do:
+national scrape is not being written to
+fix formatting for local scrape
+"""
 class Scraper:
     def __init__(self,national=False,local=False,num_pages=5,synced=True):
         if national:
