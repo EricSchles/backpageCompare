@@ -165,6 +165,7 @@ class Scraper:
                 responses = grequests.map(rs)
                 results = []
                 for r in responses:
+                    self.save(r)
                     result = {}
                     html = lxml.html.fromstring(r.text)
                     posting_body = html.xpath('//div[@class="postingBody"]')
@@ -180,6 +181,7 @@ class Scraper:
         else:
             result = {}
             r = requests.get(url_list)
+            self.save(r)
             html = lxml.html.fromstring(r.text)
             posting_body = html.xpath('//div[@class="postingBody"]')
             result["textbody"] = [i.text_content() for i in posting_body]
@@ -232,9 +234,9 @@ class Scraper:
 
     def run(self):
         if self.national:
-            pages = setup_all(self.num_pages) #tune this
+            pages = self.setup_all(self.num_pages) #tune this
         if self.local:
-            pages = setup_nynj(self.num_pages) #tune this
+            pages = self.setup_nynj(self.num_pages) #tune this
         links = []
         now = time.strftime("%m_%d_%y,%H_%M")
         folder = "backpage"+now+".csv"
@@ -244,12 +246,12 @@ class Scraper:
 
         if self.synchronous:
             for page in pages:
-                links += grab_ads(page)
+                links += self.grab_ads(page)
         else:
             for i in xrange(0,len(pages),10):
                 rs = (grequests.get(page,stream=False) for page in pages[i-10:i])
                 responses = grequests.map(rs)
-                links += grab_ads(responses,asynchronous=True)
+                links += self.grab_ads(responses,asynchronous=True)
         
         if not self.synchronous:
             #chunking requests because grequests can't handle that many at once
@@ -257,7 +259,7 @@ class Scraper:
             for i in xrange(0,len(links),10):
                 url_list.append(links[i-10:i])
 
-            data = get_information_from_page(url_list,asynchronous=True)
+            data = self.get_information_from_page(url_list,asynchronous=True)
         else:
             data = []
             for link in links:
