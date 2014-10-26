@@ -267,7 +267,8 @@ class Scraper:
                 emails.append(word)
         return emails
 
-    def run(self):
+    def run(self,chunking=100):
+        time_lapse = []
         print "setting up..."
         if self.national:
             pages = self.setup_all(self.num_pages) #tune this
@@ -285,18 +286,22 @@ class Scraper:
             for page in pages:
                 links += self.grab_ads(page)
         else:
-            print len(pages)
-            for i in xrange(0,len(pages),10):
-                rs = (grequests.get(page,stream=False) for page in pages[i-10:i])
+            #print len(pages)
+
+            for i in xrange(0,len(pages),chunking):
+                before = time.time()
+                rs = (grequests.get(page,stream=False) for page in pages[i-chunking:i])
                 responses = grequests.map(rs)
                 links += self.grab_ads(responses,asynchronous=True)
-        
+                after = time.time()
+                #print i, after - before
+                time_lapse.append(after-before)
         print "grabbing individual pages..."
         if not self.synchronous:
             #chunking requests because grequests can't handle that many at once
             url_list = []
-            for i in xrange(0,len(links),10):
-                url_list.append(links[i-10:i])
+            for i in xrange(0,len(links),chunking):
+                url_list.append(links[i-chunking:i])
 
             data = self.get_information_from_page(url_list,asynchronous=True)
         else:
