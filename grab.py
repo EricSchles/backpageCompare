@@ -4,6 +4,7 @@ import pickle
 import grequests
 import os
 import pandas as pd
+import time
 
 class Scraper:
     def __init__(self,national=False,local=False,num_pages=5,synced=True):
@@ -233,17 +234,19 @@ class Scraper:
         return emails
 
     def run(self):
+        print "setting up..."
         if self.national:
             pages = self.setup_all(self.num_pages) #tune this
         if self.local:
             pages = self.setup_nynj(self.num_pages) #tune this
         links = []
         now = time.strftime("%m_%d_%y,%H_%M")
-        folder = "backpage"+now+".csv"
+        folder = "backpage"+now
         if not os.path.exists(folder):
             os.mkdir(folder)
         os.chdir(folder)
 
+        print "grabbing pages..."
         if self.synchronous:
             for page in pages:
                 links += self.grab_ads(page)
@@ -253,6 +256,7 @@ class Scraper:
                 responses = grequests.map(rs)
                 links += self.grab_ads(responses,asynchronous=True)
         
+        print "grabbing individual pages..."
         if not self.synchronous:
             #chunking requests because grequests can't handle that many at once
             url_list = []
@@ -268,6 +272,7 @@ class Scraper:
         for datum in data:
             final_data = final_data.append(datum,ignore_index=True)
         
+        print "writing out to csv.."
         if self.national:
             final_data.to_csv("national_data.csv")
         if self.local:
