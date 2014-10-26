@@ -5,7 +5,7 @@ import grequests
 import os
 import pandas as pd
 import time
-
+import hashlib
 
 """
 To Do:
@@ -33,7 +33,7 @@ class Scraper:
     def get_all_backpages(self):
         r = requests.get("http://www.backpage.com/")
         html = lxml.html.fromstring(r.text)
-        backpages = html.xpath('/div[@class="united-states geoBlock"]//a/@href')
+        backpages = html.xpath('//div[@class="united-states geoBlock"]//a/@href')
         links = []
         for i in backpages:
             if "backpage" in i:
@@ -177,14 +177,14 @@ class Scraper:
                     
                     name = self.save(r)
                     if self.national:
-		            	if not os.path.exists("recruitment"):
-		                	os.mkdir("recruitment")
-		            	os.chdir("recruitment")
-		        	elif self.local:
-		           		if not os.path.exists("ads"):
-		                	os.mkdir("ads")
-		            	os.chdir("ads")
-                    hash_value = self.hasher(name)
+                    	if not os.path.exists("recruitment"):
+                            os.mkdir("recruitment")
+                        os.chdir("recruitment")
+                    elif self.local:
+                    	if not os.path.exists("ads"):
+                            os.mkdir("ads")
+                        os.chdir("ads")
+                    hash_value = hashlib.sha224(name)
                     os.chdir("../")
                     result = {}
                     html = lxml.html.fromstring(r.text)
@@ -204,6 +204,16 @@ class Scraper:
             result = {}
             r = requests.get(url_list)
             self.save(r)
+            if self.national:
+                if not os.path.exists("recruitment"):
+                    os.mkdir("recruitment")
+                os.chdir("recruitment")
+            elif self.local:
+                if not os.path.exists("ads"):
+                    os.mkdir("ads")
+                os.chdir("ads")
+            hash_value = hashlib.sha224(name)
+            os.chdir("../")
             html = lxml.html.fromstring(r.text)
             posting_body = html.xpath('//div[@class="postingBody"]')
             result["textbody"] = [i.text_content() for i in posting_body]
@@ -211,6 +221,8 @@ class Scraper:
             result["url"] = r.url
             result["phone_number"] = self.phone_number_grab(result["textbody"])
             result["emails"] = self.email_grab(result["textbody"])
+            result["file_hash"] = hash_value
+            result["filename"] = name
             return result
 
     def letter_to_number(self,text):
@@ -299,6 +311,6 @@ class Scraper:
         if self.national:
             final_data.to_csv("national_data.csv")
         if self.local:
-            final_data.to_csv("ny_ny_data.csv")
+            final_data.to_csv("ny_nj_data.csv")
         os.chdir("../")
         return folder
