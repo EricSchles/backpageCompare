@@ -5,7 +5,7 @@ import grequests
 import os
 import pandas as pd
 import time
-
+from unidecode import unidecode
 class Scraper:
     def __init__(self,national=False,local=False,num_pages=5,synced=True):
         if national:
@@ -172,7 +172,7 @@ class Scraper:
                     result = {}
                     html = lxml.html.fromstring(r.text)
                     posting_body = html.xpath('//div[@class="postingBody"]')
-                    result["textbody"] = " ".join([i.text_content() for i in posting_body])
+                    result["textbody"] = " ".join([i.text_content() for i in posting_body]).encode("ascii","ignore")
                     result['pictures'] = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
                     result['url'] = r.url
                     result["phone_number"] = self.phone_number_grab(result["textbody"])
