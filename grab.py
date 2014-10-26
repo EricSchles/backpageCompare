@@ -27,7 +27,7 @@ class Scraper:
     def get_all_backpages(self):
         r = requests.get("http://www.backpage.com/")
         html = lxml.html.fromstring(r.text)
-        backpages = html.xpath("//a/@href")
+        backpages = html.xpath('/div[@class="united-states geoBlock"]//a/@href')
         links = []
         for i in backpages:
             if "backpage" in i:
