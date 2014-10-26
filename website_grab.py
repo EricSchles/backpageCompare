@@ -39,3 +39,4 @@ def mapper(url,urlname,links,depth):
             if not link in links:
                 links.append(link)
     return links
+
