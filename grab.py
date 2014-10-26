@@ -182,10 +182,14 @@ class Scraper:
     def phone_number_grab(self,text):
         text = self.letter_to_number(text)
         phone = []
-        for letter in text:
+        for ind,letter in enumerate(text):
             if letter.isdigit():
                 phone.append(letter)
-            
+                start = ind
+                if  
+
+        if len(phone) == 9 or len(phone) == 10:
+            return ''.join(phone)
 
     def run(self):
         if self.national:
