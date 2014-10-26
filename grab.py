@@ -150,6 +150,8 @@ class Scraper:
                     result["textbody"] = [i.text_content() for i in posting_body]
                     result['pictures'] = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
                     result['url'] = r.url
+                    result["phone_number"] = self.phone_number_grab(result["textbody"])
+                    result["emails"] = self.email_grab(result["textbody"])
                     results.append(result)
                     r.close()
             return results
@@ -196,6 +198,8 @@ class Scraper:
 
         if len(phone) == 9 or len(phone) == 10:
             return ''.join(phone)
+        else:
+            return ''
         
     def email_grab(self,text):
         text = text.split(" ")
