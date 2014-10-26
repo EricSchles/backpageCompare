@@ -242,7 +242,7 @@ class Scraper:
         if self.local:
             pages = self.setup_nynj(self.num_pages) #tune this
         links = []
-        now = time.strftime("%m_%d_%y,%H_%M")
+        now = time.strftime("%m_%d_%y_%H")
         folder = "backpage"+now
         if not os.path.exists(folder):
             os.mkdir(folder)
