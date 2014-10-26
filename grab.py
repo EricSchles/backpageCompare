@@ -7,6 +7,11 @@ import pandas as pd
 
 class Scraper:
     def __init__(self,national=False,local=False,num_pages=5,synced=True):
+        if national:
+            assert local == False
+        if local:
+            assert national == False
+        
         self.national = national
         self.local = local
         if national:
@@ -50,11 +55,20 @@ class Scraper:
             pickle.dump(links,f)
 
     def save(self,r):
-        if 
+        if self.national:
+            if not os.path.exists("recruitment"):
+                os.mkdir("recruitment")
+            os.chdir("recruitment")
+        elif self.local:
+            if not os.path.exists("ads"):
+                os.mkdir("ads")
+            os.chdir("ads")
+
         name = r.url.split("/")[-2:]
-        with open(name,"w") as f:
+        with open(name+".html","w") as f:
             f.write(r.text)
-            
+        os.chdir("../")
+
     def setup_all(self,index):
         backpages = pickle.load(open("backpages","rb"))
         female_escorts = []
@@ -222,6 +236,11 @@ class Scraper:
         if self.local:
             pages = setup_nynj(self.num_pages) #tune this
         links = []
+        now = time.strftime("%m_%d_%y,%H_%M")
+        folder = "backpage"+now+".csv"
+        if not os.path.exists(folder):
+            os.mkdir(folder)
+        os.chdir(folder)
 
         if self.synchronous:
             for page in pages:
@@ -246,11 +265,7 @@ class Scraper:
         final_data = pd.DataFrame(columns=["url","textbody","phone_number","pictures","emails","filename","file_hash"])
         for datum in data:
             final_data = final_data.append(datum,ignore_index=True)
-        now = time.strftime("%m_%d_%y,%H_%M")
-        folder = "backpage"+now+".csv"
-        if not os.path.exists(folder):
-            os.mkdir(folder)
-        os.chdir(folder)
+        
         if self.national:
             final_data.to_csv("national_data.csv")
         if self.local:
