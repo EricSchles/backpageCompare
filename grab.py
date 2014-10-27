@@ -334,8 +334,12 @@ class Scraper:
 
         print "grabbing pages..."
         if self.synchronous:
-            for page in pages:
-                links += self.grab_ads(page)
+            if debug:
+                for page in pages[:5]:
+                    links += self.grab_ads(page)
+            else:
+                for page in pages:
+                    links += self.grab_ads(page)
         else:
             #print len(pages)
 
@@ -351,9 +355,12 @@ class Scraper:
         if not self.synchronous:
             #chunking requests because grequests can't handle that many at once
             url_list = []
-            for i in xrange(0,len(links),chunking):
-                url_list.append(links[i-chunking:i])
-
+            if debug:
+                url_list += links[:20]
+                
+            else:
+                for i in xrange(0,len(links),chunking):
+                    url_list.append(links[i-chunking:i])
             data,sync_urls = self.get_information_from_page(url_list,asynchronous=True)
             if sync_urls != []:
                 for url in sync_urls:
