@@ -358,16 +358,14 @@ class Scraper:
             #chunking requests because grequests can't handle that many at once
             url_list = []
             if debug:
-                url_list = links[:20] 
-                print url_list
-                sys.exit(0)
+                url_list.append(links[:20]) 
             else:
                 for i in xrange(0,len(links),chunking):
                     url_list.append(links[i-chunking:i])
             data,sync_urls = self.get_information_from_page(url_list,asynchronous=True)
-            if sync_urls != []:
-                for url in sync_urls:
-                    data.append(self.get_information_from_page(url))
+            # if sync_urls != []:
+            #     for url in sync_urls:
+            #         data.append(self.get_information_from_page(url))
         else:
             data = []
             for link in links:
