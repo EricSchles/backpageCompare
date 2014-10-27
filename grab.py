@@ -6,6 +6,7 @@ import os
 import pandas as pd
 import time
 import hashlib
+import sys
 
 """
 To Do:
@@ -335,13 +336,14 @@ class Scraper:
         print "grabbing pages..."
         if self.synchronous:
             if debug:
+                
                 for page in pages[:5]:
                     links += self.grab_ads(page)
             else:
                 for page in pages:
                     links += self.grab_ads(page)
         else:
-            #print len(pages)
+            
 
             for i in xrange(0,len(pages),chunking):
                 before = time.time()
@@ -356,8 +358,9 @@ class Scraper:
             #chunking requests because grequests can't handle that many at once
             url_list = []
             if debug:
-                url_list += links[:20]
-                
+                url_list = links[:20] 
+                print url_list
+                sys.exit(0)
             else:
                 for i in xrange(0,len(links),chunking):
                     url_list.append(links[i-chunking:i])
