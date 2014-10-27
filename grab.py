@@ -200,7 +200,11 @@ class Scraper:
 
                     result['url'] = r.url
                     result["phone_number"] = self.phone_number_grab(result["textbody"])
-                    result["emails"] = self.email_grab(result["textbody"])
+                    emails = self.email_grab(result["textbody"])
+                    if emails == []:
+                        result["emails"] = ''
+                    else:
+                        result["emails"] = emails
                     result["file_hash"] = hash_value.hexdigest()
                     result["filename"] = name
                     results.append(result)
@@ -231,7 +235,11 @@ class Scraper:
                 result["pictures"] = pictures
             result["url"] = r.url
             result["phone_number"] = self.phone_number_grab(result["textbody"])
-            result["emails"] = self.email_grab(result["textbody"])
+            emails = self.email_grab(result["textbody"])
+            if emails == []:
+                result["emails"] = ''
+            else:
+                result["emails"] = emails
             result["file_hash"] = hash_value.hexdigest()
             result["filename"] = name
             return result
