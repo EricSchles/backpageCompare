@@ -55,9 +55,10 @@ class Scraper:
             if "backpage" in i:
                 for area in ny_nj_backpage:
                     if area in i:
-                        if not "www" in i: 
-                            i = str(i)
-                            links.append(i)
+                        if not "ks" in i:
+                            if not "www" in i: 
+                                i = str(i)
+                                links.append(i)
 
         with open("nynj_backpages","w") as f:
             pickle.dump(links,f)
@@ -79,8 +80,8 @@ class Scraper:
         os.chdir("../")
         return name+".html"
 
-    def setup_all(self,index):
-        backpages = pickle.load(open("backpages","rb"))
+    def setup_nynj(self,index):
+        backpages = pickle.load(open("nynj_backpages","rb"))
         female_escorts = []
         body_rubs = []
         strippers = []
@@ -129,8 +130,8 @@ class Scraper:
         all_pages = female_escorts + body_rubs + strippers + dominatrixes + transsexual_escorts + male_escorts + websites + adult_jobs
         return all_pages
 
-    def setup_nynj(self,index):
-        backpages = pickle.load(open("nynj_backpages","rb"))
+    def setup_all(self,index):
+        backpages = pickle.load(open("backpages","rb"))
         adult_jobs = []
         for page in backpages:
             for i in xrange(1,index):
@@ -158,6 +159,8 @@ class Scraper:
             responses = page
             results = []
             for r in responses:
+                if r == None:
+                    continue
                 html = lxml.html.fromstring(r.text)
                 ads = html.xpath('//div[@class="cat"]/a/@href')
                 final = []
@@ -168,15 +171,20 @@ class Scraper:
             return results
 
     def get_information_from_page(self,url_list,asynchronous=False):
-
+        sync_urls = []
         if asynchronous:
             results = []
             for urls in url_list:
+                print urls
                 rs = (grequests.get(u,stream=False) for u in urls)
                 responses = grequests.map(rs)
                 for r in responses:
-                    if not "http" in r.url: 
-                        print r.url
+                    if r == None:
+                        sync_urls += urls
+                        continue
+                    if r.url in sync_urls: 
+                        while r.url in sync_urls:
+                            sync_urls.remove(r.url)
                     name = self.save(r)
                     if self.national:
                     	if not os.path.exists("recruitment"):
@@ -191,7 +199,10 @@ class Scraper:
                     result = {}
                     html = lxml.html.fromstring(r.text)
                     posting_body = html.xpath('//div[@class="postingBody"]')
-                    result["textbody"] = " ".join([i.text_content() for i in posting_body]).encode("ascii","ignore")
+                    if posting_body == []:
+                        result["textbody"] = ''
+                    else:
+                        result["textbody"] = posting_body[0].text_content().encode("ascii","ignore")
                     pictures = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
                     if pictures == []:
                         result['pictures'] = ''
@@ -209,7 +220,7 @@ class Scraper:
                     result["filename"] = name
                     results.append(result)
                     r.close()
-            return results
+            return results,sync_urls
 
         else:
             result = {}
@@ -227,7 +238,10 @@ class Scraper:
             os.chdir("../")
             html = lxml.html.fromstring(r.text)
             posting_body = html.xpath('//div[@class="postingBody"]')
-            result["textbody"] = " ".join([i.text_content() for i in posting_body]).encode("ascii","ignore")
+            if posting_body == []:
+                result["textbody"] = ''
+            else:
+                result["textbody"] = posting_body[0].text_content().encode("ascii","ignore")
             pictures = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
             if pictures == []:
                 result["pictures"] = ''
@@ -321,11 +335,15 @@ class Scraper:
             for i in xrange(0,len(links),chunking):
                 url_list.append(links[i-chunking:i])
 
-            data = self.get_information_from_page(url_list,asynchronous=True)
+            data,sync_urls = self.get_information_from_page(url_list,asynchronous=True)
+            if sync_urls != []:
+                for url in sync_urls:
+                    data.append(self.get_information_from_page(url))
         else:
             data = []
             for link in links:
                 data.append(get_information_from_page(link))
+
         final_data = pd.DataFrame(columns=["url","textbody","phone_number","pictures","emails","filename","file_hash"])
         
         for datum in data:
