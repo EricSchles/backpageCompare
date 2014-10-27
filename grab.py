@@ -181,7 +181,7 @@ class Scraper:
                     if r == None:
                         sync_urls += urls
                         continue
-                    if r.url in sync_urls: 
+                    if r.url in sync_urls :
                         while r.url in sync_urls:
                             sync_urls.remove(r.url)
                     name = self.save(r)
