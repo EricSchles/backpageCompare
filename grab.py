@@ -192,11 +192,16 @@ class Scraper:
                     html = lxml.html.fromstring(r.text)
                     posting_body = html.xpath('//div[@class="postingBody"]')
                     result["textbody"] = " ".join([i.text_content() for i in posting_body]).encode("ascii","ignore")
-                    result['pictures'] = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
+                    pictures = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
+                    if pictures == []:
+                        result['pictures'] = ''
+                    else:
+                        result['pictures'] = pictures
+
                     result['url'] = r.url
                     result["phone_number"] = self.phone_number_grab(result["textbody"])
                     result["emails"] = self.email_grab(result["textbody"])
-                    result["file_hash"] = hash_value.digest()
+                    result["file_hash"] = hash_value.hexdigest()
                     result["filename"] = name
                     results.append(result)
                     r.close()
@@ -219,11 +224,15 @@ class Scraper:
             html = lxml.html.fromstring(r.text)
             posting_body = html.xpath('//div[@class="postingBody"]')
             result["textbody"] = " ".join([i.text_content() for i in posting_body]).encode("ascii","ignore")
-            result["pictures"] = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
+            pictures = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
+            if pictures == []:
+                result["pictures"] = ''
+            else:
+                result["pictures"] = pictures
             result["url"] = r.url
             result["phone_number"] = self.phone_number_grab(result["textbody"])
             result["emails"] = self.email_grab(result["textbody"])
-            result["file_hash"] = hash_value.digest()
+            result["file_hash"] = hash_value.hexdigest()
             result["filename"] = name
             return result
 
