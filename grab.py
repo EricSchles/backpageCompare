@@ -175,7 +175,8 @@ class Scraper:
                 rs = (grequests.get(u,stream=False) for u in urls)
                 responses = grequests.map(rs)
                 for r in responses:
-                    
+                    if not "http" in r.url: 
+                        print r.url
                     name = self.save(r)
                     if self.national:
                     	if not os.path.exists("recruitment"):
@@ -195,7 +196,7 @@ class Scraper:
                     result['url'] = r.url
                     result["phone_number"] = self.phone_number_grab(result["textbody"])
                     result["emails"] = self.email_grab(result["textbody"])
-                    result["file_hash"] = hash_value
+                    result["file_hash"] = hash_value.digest()
                     result["filename"] = name
                     results.append(result)
                     r.close()
@@ -217,12 +218,12 @@ class Scraper:
             os.chdir("../")
             html = lxml.html.fromstring(r.text)
             posting_body = html.xpath('//div[@class="postingBody"]')
-            result["textbody"] = [i.text_content() for i in posting_body]
+            result["textbody"] = " ".join([i.text_content() for i in posting_body]).encode("ascii","ignore")
             result["pictures"] = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
             result["url"] = r.url
             result["phone_number"] = self.phone_number_grab(result["textbody"])
             result["emails"] = self.email_grab(result["textbody"])
-            result["file_hash"] = hash_value
+            result["file_hash"] = hash_value.digest()
             result["filename"] = name
             return result
 
