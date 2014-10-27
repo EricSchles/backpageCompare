@@ -175,7 +175,6 @@ class Scraper:
         if asynchronous:
             results = []
             for urls in url_list:
-                print urls
                 rs = (grequests.get(u,stream=False) for u in urls)
                 responses = grequests.map(rs)
                 for r in responses:
