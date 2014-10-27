@@ -55,10 +55,11 @@ class Scraper:
             if "backpage" in i:
                 for area in ny_nj_backpage:
                     if area in i:
-                        if not "ks" in i:
-                            if not "www" in i: 
-                                i = str(i)
-                                links.append(i)
+                        if "ks" in i:
+                            continue
+                        if not "www" in i: 
+                            i = str(i)
+                            links.append(i)
 
         with open("nynj_backpages","w") as f:
             pickle.dump(links,f)
@@ -129,6 +130,22 @@ class Scraper:
 
         all_pages = female_escorts + body_rubs + strippers + dominatrixes + transsexual_escorts + male_escorts + websites + adult_jobs
         return all_pages
+
+    def setup_debug(self,index):
+        backpages = pickle.load(open("nynj_backpages","rb"))
+        female_escorts = []
+        for page in backpages:
+            for i in xrange(1,index):
+                if i == 1:
+                    female = page + "FemaleEscorts/"
+                    female_escorts.append(female)
+                else:
+                    female = page + "FemaleEscorts/?page="+str(i)
+                    female_escorts.append(female)
+
+        all_pages = female_escorts 
+        return all_pages
+
 
     def setup_all(self,index):
         backpages = pickle.load(open("backpages","rb"))
@@ -298,13 +315,16 @@ class Scraper:
                 emails.append(word)
         return emails
 
-    def run(self,chunking=100):
+    def run(self,chunking=100,debug=False):
         time_lapse = []
         print "setting up..."
-        if self.national:
-            pages = self.setup_all(self.num_pages) #tune this
-        if self.local:
-            pages = self.setup_nynj(self.num_pages) #tune this
+        if debug:
+            pages = self.setup_debug(self.num_pages)
+        else:
+            if self.national:
+                pages = self.setup_all(self.num_pages) #tune this
+            if self.local:
+                pages = self.setup_nynj(self.num_pages) #tune this
         links = []
         now = time.strftime("%m_%d_%y_%H")
         folder = "backpage"+now
