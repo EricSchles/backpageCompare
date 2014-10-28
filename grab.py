@@ -220,8 +220,8 @@ class Scraper:
                         result["textbody"] = ''
                     else:
                         post_body = posting_body[0].text_content().encode("ascii","ignore")
-                        post_body = post_body.replace("\r","")
-                        post_body = post_body.replace("\n","")
+                        post_body = post_body.replace("\r"," ")
+                        post_body = post_body.replace("\n"," ")
                         post_body = post_body.replace("\t","")
                         post_body = post_body.replace(",","")
                         post_body = post_body.replace(";","")
@@ -266,8 +266,8 @@ class Scraper:
                 result["textbody"] = ''
             else:
                 post_body = posting_body[0].text_content().encode("ascii","ignore")
-                post_body = post_body.replace("\r","")
-                post_body = post_body.replace("\n","")
+                post_body = post_body.replace("\r"," ")
+                post_body = post_body.replace("\n"," ")
                 post_body = post_body.replace("\t","")
                 post_body = post_body.replace(",","")
                 post_body = post_body.replace(";","")
