@@ -219,12 +219,14 @@ class Scraper:
                     if posting_body == []:
                         result["textbody"] = ''
                     else:
-                        result["textbody"] = posting_body[0].text_content().encode("ascii","ignore")
-                    pictures = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
-                    if pictures == []:
-                        result['pictures'] = ''
-                    else:
-                        result['pictures'] = pictures
+                        post_body = posting_body[0].text_content().encode("ascii","ignore")
+                        post_body = post_body.replace("\n","")
+                        result["textbody"] = post_body
+                    # pictures = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
+                    # if pictures == []:
+                    #     result['pictures'] = ''
+                    # else:
+                    #     result['pictures'] = pictures
 
                     result['url'] = r.url
                     result["phone_number"] = self.phone_number_grab(result["textbody"])
@@ -258,12 +260,14 @@ class Scraper:
             if posting_body == []:
                 result["textbody"] = ''
             else:
-                result["textbody"] = posting_body[0].text_content().encode("ascii","ignore")
-            pictures = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
-            if pictures == []:
-                result["pictures"] = ''
-            else:
-                result["pictures"] = pictures
+                post_body = posting_body[0].text_content().encode("ascii","ignore")
+                post_body = post_body.replace("\n","")
+                result["textbody"] = post_body
+            # pictures = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
+            # if pictures == []:
+            #     result["pictures"] = ''
+            # else:
+            #     result["pictures"] = pictures
             result["url"] = r.url
             result["phone_number"] = self.phone_number_grab(result["textbody"])
             emails = self.email_grab(result["textbody"])
