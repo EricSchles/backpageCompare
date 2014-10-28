@@ -220,7 +220,12 @@ class Scraper:
                         result["textbody"] = ''
                     else:
                         post_body = posting_body[0].text_content().encode("ascii","ignore")
+                        post_body = post_body.replace("\0xA","")
                         post_body = post_body.replace("\n","")
+                        post_body = post_body.replace("\t","")
+                        post_body = post_body.replace(",","")
+                        post_body = post_body.replace(";","")
+                        print post_body
                         result["textbody"] = post_body
                     # pictures = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
                     # if pictures == []:
@@ -261,7 +266,11 @@ class Scraper:
                 result["textbody"] = ''
             else:
                 post_body = posting_body[0].text_content().encode("ascii","ignore")
+                post_body = post_body.replace("\0xA","")
                 post_body = post_body.replace("\n","")
+                post_body = post_body.replace("\t","")
+                post_body = post_body.replace(",","")
+                post_body = post_body.replace(";","")
                 result["textbody"] = post_body
             # pictures = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
             # if pictures == []:
