@@ -313,9 +313,10 @@ class Scraper:
                 found = True
             else:
                 counter += 1
-            if counter > 5 and found:
-                phone = []
-
+                if counter > 5 and found:
+                    phone = []
+                    counter = 0
+                    found = False
         if len(phone) == 9 or len(phone) == 10:
             return ''.join(phone)
         else:
