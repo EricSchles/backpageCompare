@@ -225,7 +225,7 @@ class Scraper:
                         post_body = post_body.replace("\t"," ")
                         post_body = post_body.replace(","," ")
                         post_body = post_body.replace(";"," ")
-                        print post_body
+                        
                         result["textbody"] = post_body
                     # pictures = html.xpath('//ul[@id="viewAdPhotoLayout"]/li/a/@href')
                     # if pictures == []:
@@ -234,7 +234,12 @@ class Scraper:
                     #     result['pictures'] = pictures
 
                     result['url'] = r.url
-                    result["phone_number"] = self.phone_number_grab(result["textbody"])
+                    first = self.phone_number_grab11(result["textbody"])
+                    second = self.phone_number_grab(result["textbody"])
+                    if second in first: #the second number is the first with one digit missing
+                        result["phone_number"] = first
+                    else:
+                        result["phone_number"] = second
                     emails = self.email_grab(result["textbody"])
                     if emails == []:
                         result["emails"] = ''
@@ -278,7 +283,13 @@ class Scraper:
             # else:
             #     result["pictures"] = pictures
             result["url"] = r.url
-            result["phone_number"] = self.phone_number_grab(result["textbody"])
+            first = self.phone_number_grab11(result["textbody"])
+            second = self.phone_number_grab(result["textbody"])
+            if second in first: #the second number is the first with one digit missing
+                result["phone_number"] = first
+            else:
+                result["phone_number"] = second 
+            
             emails = self.email_grab(result["textbody"])
             if emails == []:
                 result["emails"] = ''
@@ -323,7 +334,29 @@ class Scraper:
                 return ''.join(phone)
 
         return ''
-    
+        
+    def phone_number_grab11(self,text):
+        text = self.letter_to_number(text)
+        phone = []
+        counter = 0
+        found = False
+        for ind,letter in enumerate(text):
+            if letter.isdigit():
+                phone.append(letter)
+                found = True
+            else:
+                if found:
+                    counter += 1
+                if counter > 8 and found:
+                    phone = []
+                    counter = 0
+                    found = False
+
+            if len(phone) == 11:
+                return ''.join(phone)
+
+        return ''
+
     def email_grab(self,text):
         text = text.split(" ")
         emails = []
