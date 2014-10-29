@@ -4,7 +4,8 @@ import os
 from glob import glob
 import lxml.html
 
-def webpage_grab(url):
+class Grabber:
+    def webpage_grab(url):
     r = requests.get(url)
     name = "_".join(r.url.split("/")[-2:]).replace(".html")
     if not os.path.exists(name):

@@ -1,0 +1,7 @@
+import requests
+
+def website_grab(url):
+    r = requests.get(url)
+    name = "".join(r.url.split("/")[-2:])
+    with open(name,"w") as f:
+        
