@@ -307,21 +307,23 @@ class Scraper:
         phone = []
         counter = 0
         found = False
-        for ind,letter in enumerate(text):
-            if letter.isdigit():
-                phone.append(letter)
-                found = True
-            else:
-                counter += 1
-                if counter > 5 and found:
-                    phone = []
-                    counter = 0
-                    found = False
-        if len(phone) == 9 or len(phone) == 10:
-            return ''.join(phone)
+    for ind,letter in enumerate(text):
+        if letter.isdigit():
+            phone.append(letter)
+            found = True
         else:
-            return ''
+            if found:
+                counter += 1
+            if counter > 5 and found:
+                phone = []
+                counter = 0
+                found = False
         
+        if len(phone) == 10:
+            return ''.join(phone)
+    
+    return ''
+    
     def email_grab(self,text):
         text = text.split(" ")
         emails = []
