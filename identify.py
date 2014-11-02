@@ -35,7 +35,13 @@ for folder in folders:
             positive = positive.append(df.iloc[ind],ignore_index=True)
         if result == "neg":
             negative = negative.append(df.iloc[ind],ignore_index=True)
+        with open("analysis.txt","a") as f:
+            f.write("for the record: "+line+"\n")
+            f.write("the following keywords were found:\n"+common_keywords+"\n")
+            f.write("the naive bayesian classifier, which compares text to determine if they are similar: "+result+"\n")
+
     os.chdir("../")
+
 positive.to_csv("positive.csv")
 negative.to_csv("negative.csv")
 
