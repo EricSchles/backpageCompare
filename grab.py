@@ -303,7 +303,16 @@ class Scraper:
         text = text.replace("ZERO","0")
         return text
         
+    #tuning the number of characters to allow
     def phone_number_grab(self,text):
+        results = []
+        for i in xrange(8,16):
+            results.append(self.phone_parse(text,i))
+        for result in results:
+            if len(result) >= 10 and len(result) < 12:
+                return result
+
+    def phone_parse(self,text,tuner):
         text = self.letter_to_number(text)
         phone = []
         counter = 0
@@ -315,7 +324,7 @@ class Scraper:
             else:
                 if found:
                     counter += 1
-                if counter > 8 and found:
+                if counter > tuner and found:
                     phone = []
                     counter = 0
                     found = False
