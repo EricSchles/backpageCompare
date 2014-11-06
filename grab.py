@@ -330,32 +330,14 @@ class Scraper:
                     counter = 0
                     found = False
 
-            if len(phone) == 10:
+            if len(phone) == 10 and phone[0] != 1:
+                return ''.join(phone)
+            if len(phone) == 11 and phone[0] == 1:
                 return ''.join(phone)
 
         return ''
         
-    def phone_number_grab11(self,text):
-        text = self.letter_to_number(text)
-        phone = []
-        counter = 0
-        found = False
-        for ind,letter in enumerate(text):
-            if letter.isdigit():
-                phone.append(letter)
-                found = True
-            else:
-                if found:
-                    counter += 1
-                if counter > 8 and found:
-                    phone = []
-                    counter = 0
-                    found = False
-
-            if len(phone) == 11:
-                return ''.join(phone)
-
-        return ''
+        
 
     def email_grab(self,text):
         text = text.split(" ")
