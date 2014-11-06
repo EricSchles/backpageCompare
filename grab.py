@@ -234,12 +234,7 @@ class Scraper:
                     #     result['pictures'] = pictures
 
                     result['url'] = r.url
-                    first = self.phone_number_grab11(result["textbody"])
-                    second = self.phone_number_grab(result["textbody"])
-                    if second in first: #the second number is the first with one digit missing
-                        result["phone_number"] = first
-                    else:
-                        result["phone_number"] = second
+                    result['phone_number'] = self.phone_number_grab(result["textbody"])
                     emails = self.email_grab(result["textbody"])
                     if emails == []:
                         result["emails"] = ''
@@ -283,13 +278,8 @@ class Scraper:
             # else:
             #     result["pictures"] = pictures
             result["url"] = r.url
-            first = self.phone_number_grab11(result["textbody"])
-            second = self.phone_number_grab(result["textbody"])
-            if second in first: #the second number is the first with one digit missing
-                result["phone_number"] = first
-            else:
-                result["phone_number"] = second 
             
+            result["phone_number"] = self.phone_number_grab(result["textbody"])
             emails = self.email_grab(result["textbody"])
             if emails == []:
                 result["emails"] = ''
